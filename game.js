@@ -12,10 +12,10 @@ renderer.shadowMap.type = THREE.PCFShadowShadowMap;
 document.getElementById('gameContainer').appendChild(renderer.domElement);
 
 // Lighting
-const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
 scene.add(ambientLight);
 
-const sunLight = new THREE.DirectionalLight(0xffffff, 0.8);
+const sunLight = new THREE.DirectionalLight(0xffffff, 1);
 sunLight.position.set(100, 100, 50);
 sunLight.castShadow = true;
 sunLight.shadow.mapSize.width = 2048;
@@ -28,7 +28,7 @@ scene.add(sunLight);
 
 // Player Object
 const player = {
-    position: new THREE.Vector3(0, 2, 0),
+    position: new THREE.Vector3(0, 3, 0),
     velocity: new THREE.Vector3(0, 0, 0),
     speed: 0.15,
     jumpForce: 0.8,
@@ -324,7 +324,7 @@ class Ape {
         }
         
         this.mesh.position.add(this.velocity);
-        this.mesh.position.y = 1; // Keep on ground
+        this.mesh.position.y = 2.2; // Keep on ground
         this.nameLabel.position.copy(this.mesh.position).add(new THREE.Vector3(0, 1.2, 0));
         
         // Radar glow
@@ -337,33 +337,34 @@ class Ape {
     }
 }
 
-// Create Apes
-const apes = [
-    new Ape('Spike', 'Prehistoric', new THREE.Vector3(-20, 1, -30), 'aggressive'),
-    new Ape('Buzz', 'Prehistoric', new THREE.Vector3(20, 1, -25), 'curious'),
-    new Ape('Pippo', 'Ancient Egypt', new THREE.Vector3(0, 1, -40), 'playful'),
-    new Ape('Kei', 'Medieval', new THREE.Vector3(30, 1, 0), 'cautious'),
-    new Ape('Yumi', 'Futuristic', new THREE.Vector3(-30, 1, 20), 'mischievous')
-];
-
 // Level Environment
 function createEnvironment() {
-    // Ground
+    // Ground plane
     const groundGeometry = new THREE.PlaneGeometry(200, 200);
     const groundMaterial = new THREE.MeshStandardMaterial({ color: 0x228B22 });
     const groundMesh = new THREE.Mesh(groundGeometry, groundMaterial);
     groundMesh.rotation.x = -Math.PI / 2;
+    groundMesh.position.y = 0;
     groundMesh.receiveShadow = true;
     scene.add(groundMesh);
+    
+    // Add a solid ground box underneath
+    const groundBoxGeometry = new THREE.BoxGeometry(200, 2, 200);
+    const groundBoxMaterial = new THREE.MeshStandardMaterial({ color: 0x1a6b1a });
+    const groundBox = new THREE.Mesh(groundBoxGeometry, groundBoxMaterial);
+    groundBox.position.y = -1;
+    groundBox.receiveShadow = true;
+    groundBox.castShadow = true;
+    scene.add(groundBox);
     
     // Platforms
     const platforms = [
         { pos: [0, 0, 0], size: [200, 1, 200] },
-        { pos: [-30, 3, -30], size: [20, 1, 20] },
-        { pos: [30, 3, -30], size: [20, 1, 20] },
-        { pos: [0, 5, -50], size: [20, 1, 20] },
-        { pos: [40, 2, 30], size: [30, 1, 30] },
-        { pos: [-50, 4, 10], size: [15, 1, 15] }
+        { pos: [-30, 4, -30], size: [20, 1, 20] },
+        { pos: [30, 4, -30], size: [20, 1, 20] },
+        { pos: [0, 6, -50], size: [20, 1, 20] },
+        { pos: [40, 3, 30], size: [30, 1, 30] },
+        { pos: [-50, 5, 10], size: [15, 1, 15] }
     ];
     
     platforms.forEach(p => {
@@ -400,6 +401,15 @@ function createEnvironment() {
 
 createEnvironment();
 
+// Create Apes
+const apes = [
+    new Ape('Spike', 'Prehistoric', new THREE.Vector3(-20, 2.2, -30), 'aggressive'),
+    new Ape('Buzz', 'Prehistoric', new THREE.Vector3(20, 2.2, -25), 'curious'),
+    new Ape('Pippo', 'Ancient Egypt', new THREE.Vector3(0, 2.2, -40), 'playful'),
+    new Ape('Kei', 'Medieval', new THREE.Vector3(30, 2.2, 0), 'cautious'),
+    new Ape('Yumi', 'Futuristic', new THREE.Vector3(-30, 2.2, 20), 'mischievous')
+];
+
 // Raycaster for ground detection
 const raycaster = new THREE.Raycaster();
 const rayDirection = new THREE.Vector3(0, -1, 0);
@@ -407,7 +417,7 @@ const rayDirection = new THREE.Vector3(0, -1, 0);
 function isGrounded() {
     raycaster.set(player.position, rayDirection);
     const intersects = raycaster.intersectObjects(scene.children);
-    return intersects.length > 0 && intersects[0].distance < 0.5;
+    return intersects.length > 0 && intersects[0].distance < 1;
 }
 
 // Update HUD
@@ -446,35 +456,43 @@ function animate() {
     if (isGrounded()) {
         player.velocity.y = 0;
         player.isGrounded = true;
+        player.position.y = Math.max(player.position.y, 2.2);
     } else {
         player.isGrounded = false;
     }
     
     // Jump
-    if ((keys[' '] || keys['w']) && player.isGrounded) {
+    if ((keys[' ']) && player.isGrounded) {
         player.velocity.y = player.jumpForce;
         player.isGrounded = false;
     }
     
     // Boundary check
     if (player.position.y < -50) {
-        player.position.set(0, 2, 0);
+        player.position.set(0, 3, 0);
         player.velocity.set(0, 0, 0);
     }
     
     // Update player mesh
     playerMesh.position.copy(player.position);
     
-    // Update camera
+    // Update camera with initial forward tilt
     cameraRotation.x = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, cameraRotation.x + mouseDelta.y));
     cameraRotation.y += mouseDelta.x;
-    mouseDelta.set(0, 0);
+    mouseDelta.x = 0;
+    mouseDelta.y = 0;
     
-    const cameraPos = new THREE.Vector3(0, 0.8, 3);
+    const cameraPos = new THREE.Vector3(0, 0.6, 3);
     cameraPos.applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraRotation.y);
     cameraPos.applyAxisAngle(new THREE.Vector3(1, 0, 0), cameraRotation.x);
     camera.position.copy(player.position).add(cameraPos);
-    camera.lookAt(player.position.clone().add(new THREE.Vector3(0, 0.5, 0)));
+    
+    // Look ahead slightly
+    const lookTarget = player.position.clone();
+    lookTarget.y += 0.8;
+    const lookDirection = new THREE.Vector3(0, 0, -1).applyAxisAngle(new THREE.Vector3(0, 1, 0), cameraRotation.y);
+    lookTarget.add(lookDirection.multiplyScalar(5));
+    camera.lookAt(lookTarget);
     
     // Update gadget cooldowns
     Object.values(player.gadgets).forEach(gadget => {
