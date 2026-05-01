@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ape Escape 4 - Time Capture</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Arial', sans-serif;
+            background: #1a1a1a;
+            overflow: hidden;
+        }
+        #gameContainer {
+            width: 100vw;
+            height: 100vh;
+        }
+        #hud {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #fff;
+            font-size: 16px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.8);
+            z-index: 10;
+        }
+        .hud-item {
+            margin: 10px 0;
+            padding: 8px 12px;
+            background: rgba(0,0,0,0.6);
+            border-radius: 5px;
+            border-left: 4px solid #ff6b6b;
+        }
+        #gadgetDisplay {
+            position: absolute;
+            bottom: 40px;
+            left: 20px;
+            color: #fff;
+            font-size: 14px;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 5px;
+            border: 2px solid #4ecdc4;
+            z-index: 10;
+        }
+        .gadget {
+            margin: 5px 0;
+            padding: 5px 10px;
+            cursor: pointer;
+            border-radius: 3px;
+            transition: background 0.3s;
+        }
+        .gadget.active {
+            background: #4ecdc4;
+            color: #000;
+            font-weight: bold;
+        }
+        .gadget:hover {
+            background: rgba(78, 205, 196, 0.5);
+        }
+        #levelDisplay {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: #fff;
+            font-size: 18px;
+            background: rgba(0,0,0,0.6);
+            padding: 10px 15px;
+            border-radius: 5px;
+            text-align: center;
+            z-index: 10;
+        }
+        #instructionsPanel {
+            position: absolute;
+            bottom: 20px;
+            right: 20px;
+            color: #fff;
+            font-size: 13px;
+            background: rgba(0,0,0,0.7);
+            padding: 15px;
+            border-radius: 5px;
+            border: 2px solid #95e1d3;
+            max-width: 250px;
+            z-index: 10;
+        }
+        #message {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-size: 32px;
+            font-weight: bold;
+            text-align: center;
+            text-shadow: 3px 3px 6px rgba(0,0,0,0.9);
+            z-index: 20;
+            animation: fadeInOut 3s ease-in-out;
+        }
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            25% { opacity: 1; }
+            75% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div id="gameContainer"></div>
+    
+    <div id="hud">
+        <div class="hud-item">Health: <span id="health">100</span></div>
+        <div class="hud-item">Apes Captured: <span id="captured">0</span>/<span id="totalApes">5</span></div>
+        <div class="hud-item">Time Period: <span id="timePeriod">Prehistoric</span></div>
+    </div>
+
+    <div id="gadgetDisplay">
+        <div style="font-weight: bold; margin-bottom: 10px; color: #4ecdc4;">Gadgets (Press 1-4):</div>
+        <div class="gadget active" id="gadget-stun">1: Stun Rod</div>
+        <div class="gadget" id="gadget-hook">2: Time Hook</div>
+        <div class="gadget" id="gadget-net">3: Capture Net</div>
+        <div class="gadget" id="gadget-radar">4: Ape Radar</div>
+    </div>
+
+    <div id="levelDisplay">
+        <div id="levelName">Level 1: Prehistoric Era</div>
+        <div style="font-size: 14px; margin-top: 5px;">Time Machine Active</div>
+    </div>
+
+    <div id="instructionsPanel">
+        <div style="color: #95e1d3; font-weight: bold; margin-bottom: 8px;">CONTROLS</div>
+        <div>WASD: Move</div>
+        <div>Space: Jump</div>
+        <div>Mouse: Look Around</div>
+        <div>Click: Use Gadget</div>
+        <div style="color: #95e1d3; margin-top: 8px; margin-bottom: 5px;">OBJECTIVE</div>
+        <div>Capture all apes with gadgets!</div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
